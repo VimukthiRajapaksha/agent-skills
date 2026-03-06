@@ -61,15 +61,6 @@ If missing, use defaults.
 
 - `WORK_DIR`: absolute path used to create the setup directory (default: `$pwd`)
 
-### Required environment variables (secrets)
-
-- `OB_AGENT_UPDATE_TOOL_USERNAME`
-- `OB_AGENT_UPDATE_TOOL_PASSWORD`
-- `OB_AGENT_DATABASE_USERNAME`
-- `OB_AGENT_DATABASE_PASSWORD`
-
-All four must be set and non-empty before any command; stop and report the exact missing variable if not.
-
 ## Primary workflow (do not reorder)
 
 ### 1. Prerequisites
@@ -84,7 +75,7 @@ command -v keytool
 command -v unzip
 ```
 
-- Stop if any required tool is missing.
+- Stop if any required tools are missing.
 
 ### 2. Install accelerators into base products
 
@@ -138,6 +129,12 @@ command -v unzip
 
 - If missing, stop and tell the user their WSO2 subscription is likely missing. Ask them to contact [WSO2 Online Support System](https://support.wso2.com/) to download the product or skip updates.
 
+- Verify the required environment variables for the update tool are set. Stop if missing:
+```bash
+test -n "$OB_AGENT_UPDATE_TOOL_USERNAME"
+test -n "$OB_AGENT_UPDATE_TOOL_PASSWORD"
+```
+
 - Run the update tool in each directory:
 
 ```bash
@@ -148,7 +145,11 @@ command -v unzip
 
 - Verify MySQL >= 8.0 available, stop if not.
 
-- DB users already exist. Credentials are provided via environment variables.
+- Verify DB credentials are provided via environment variables. Stop if missing:
+```bash
+test -n "$OB_AGENT_DATABASE_USERNAME"
+test -n "$OB_AGENT_DATABASE_PASSWORD"
+```
 
 - Verify DB credentials by connecting to the DB. Stop if invalid.
 
