@@ -97,12 +97,35 @@ Automates end-to-end configuration of the WSO2 Open Banking Accelerator. The ski
 
 Set these before invoking the skill. **Never paste raw secrets into the chat.**
 
+<details>
+<summary><strong>macOS / Linux</strong></summary>
+
+Add to your shell profile (`~/.zshrc` for zsh, `~/.bashrc` or `~/.bash_profile` for bash):
+
 ```bash
 export OB_AGENT_UPDATE_TOOL_USERNAME="<your-wso2-subscription-username>"
 export OB_AGENT_UPDATE_TOOL_PASSWORD="<your-wso2-subscription-password>"
 export OB_AGENT_DATABASE_USERNAME="<mysql-username>"
 export OB_AGENT_DATABASE_PASSWORD="<mysql-password>"
 ```
+
+Then reload without restarting: `source ~/.zshrc` (or `source ~/.bashrc`)
+
+</details>
+
+<details>
+<summary><strong>Windows (Command Prompt)</strong></summary>
+
+```cmd
+setx OB_AGENT_UPDATE_TOOL_USERNAME "<your-wso2-subscription-username>"
+setx OB_AGENT_UPDATE_TOOL_PASSWORD "<your-wso2-subscription-password>"
+setx OB_AGENT_DATABASE_USERNAME "<mysql-username>"
+setx OB_AGENT_DATABASE_PASSWORD "<mysql-password>"
+```
+
+> `setx` persists permanently. Restart your terminal after running.
+
+</details>
 
 > **Note:** A valid [WSO2 subscription](https://wso2.com/subscription/) is required to run the `wso2update` tool. Contact the [WSO2 Support Portal](https://support.wso2.com/) if you need access.
 
