@@ -26,7 +26,7 @@ Use when `OB_VERSION=OB4`.
 	- IS: `7.0.0` or `7.1.0`
 	- APIM: `4.4.0` or `4.5.0` (if selected)
 	- IAM accelerator: `4.0.0`
-	- AM accelerator: `4.1.1` (if selected)
+	- AM accelerator: `4.0.0` (if selected)
 - Stop on mismatch.
 
 ## Java
