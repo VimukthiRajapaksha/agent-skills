@@ -1,6 +1,6 @@
 ---
 name: set-up-wso2-open-banking
-description: Configuration guide of WSO2 Open Banking Accelerator on WSO2 Identity Server and optionally WSO2 API Manager and Streaming Integrator. Covers zip extraction, wso2update, MySQL config, merge/configure scripts, certificate exchange, and server startup checks.
+description: WSO2 Open Banking Accelerator setup guide on Identity Server, optionally with API Manager and Streaming Integrator. Covers zip extraction, updates, MySQL config, certificate exchange, and startup.
 ---
 
 # Setting up WSO2 Open Banking

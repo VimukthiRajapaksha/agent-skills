@@ -1,0 +1,97 @@
+name: Release Skill
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"   # semantic version tags only, e.g. v1.0.0
+
+# Minimal permissions: only what is needed to create a release
+permissions:
+  contents: write
+
+jobs:
+  validate-and-release:
+    name: Validate, Package, and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        # Pinned to actions/checkout v4.2.2 (SHA for supply-chain security)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Validate skill structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          SKILL_DIR="skills/set-up-wso2-open-banking"
+
+          echo "Checking required files..."
+
+          # SKILL.md must exist
+          [[ -f "$SKILL_DIR/SKILL.md" ]] \
+            || { echo "ERROR: $SKILL_DIR/SKILL.md not found"; exit 1; }
+
+          # YAML frontmatter must be present
+          head -1 "$SKILL_DIR/SKILL.md" | grep -q "^---$" \
+            || { echo "ERROR: SKILL.md must start with YAML frontmatter (---)"; exit 1; }
+
+          # 'name' field must be present
+          grep -q "^name:" "$SKILL_DIR/SKILL.md" \
+            || { echo "ERROR: Missing 'name' field in frontmatter"; exit 1; }
+
+          # 'description' field must be present
+          grep -q "^description:" "$SKILL_DIR/SKILL.md" \
+            || { echo "ERROR: Missing 'description' field in frontmatter"; exit 1; }
+
+          # Description must not exceed 200 characters
+          DESC=$(awk '/^description:/{p=1; sub(/^description: */,""); desc=$0} p && !/^description:/ && /^[^ ]/{p=0} p{if(!/^description:/) desc=desc" "$0} END{print desc}' "$SKILL_DIR/SKILL.md" | head -1)
+          DESC_LEN=${#DESC}
+          echo "Description length: $DESC_LEN characters"
+          (( DESC_LEN <= 200 )) \
+            || { echo "ERROR: description exceeds 200 characters ($DESC_LEN)"; exit 1; }
+
+          # All referenced resource files must exist
+          echo "Checking referenced resource files..."
+          while IFS= read -r line; do
+            ref=$(echo "$line" | grep -oP '\./resources/[^\)]+')
+            [[ -z "$ref" ]] && continue
+            [[ -f "$SKILL_DIR/$ref" ]] \
+              || { echo "ERROR: Referenced file not found: $SKILL_DIR/$ref"; exit 1; }
+          done < "$SKILL_DIR/SKILL.md"
+
+          echo "Validation passed."
+
+      - name: Package skill as ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          SKILL_NAME="set-up-wso2-open-banking"
+          ZIP_NAME="${SKILL_NAME}.zip"
+
+          # Create ZIP with the skill folder as root (per packaging guidelines)
+          #   Correct:   set-up-wso2-open-banking.zip
+          #              └── set-up-wso2-open-banking/
+          #                  ├── SKILL.md
+          #                  └── resources/
+          cd skills
+          zip -r "../${ZIP_NAME}" "${SKILL_NAME}/"
+          cd ..
+
+          echo "ZIP_NAME=${ZIP_NAME}" >> "$GITHUB_ENV"
+
+          # Verify structure
+          echo "ZIP contents:"
+          unzip -l "${ZIP_NAME}"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ github.ref_name }}"
+
+          gh release create "${TAG}" \
+            --title "Release ${TAG}" \
+            --generate-notes \
+            "${ZIP_NAME}"
