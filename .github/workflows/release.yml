@@ -53,7 +53,7 @@ jobs:
           # All referenced resource files must exist
           echo "Checking referenced resource files..."
           while IFS= read -r line; do
-            ref=$(echo "$line" | grep -oP '\./resources/[^\)]+')
+            ref=$(echo "$line" | grep -oE '\./resources/[^)]+' || true)
             [[ -z "$ref" ]] && continue
             [[ -f "$SKILL_DIR/$ref" ]] \
               || { echo "ERROR: Referenced file not found: $SKILL_DIR/$ref"; exit 1; }
