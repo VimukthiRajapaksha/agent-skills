@@ -49,10 +49,15 @@ Goal: regenerate each product's `wso2carbon` keypair so its certificate CN match
 
 4. After all selected components have their `wso2carbon.pem`, make them trust each other:
     - Alias mapping: IS → `is_wso2carbon`, APIM → `apim_wso2carbon`, SI → `si_wso2carbon`.
-    - Into each selected component's truststore (`client-truststore.*`), import the `wso2carbon.pem` of **all** selected components (including its own) using the alias mapping above.
+    - Into each selected component's truststore (`client-truststore.*`), import the `wso2carbon.pem` of every **other** selected component using the alias mapping above.
       ```bash
-      keytool -import -trustcacerts -alias <ALIAS> -file wso2carbon.pem \
-         -keystore client-truststore.p12 -storepass wso2carbon -noprompt
+      keytool -import -trustcacerts -alias <ALIAS> -file <SOURCE_SECURITY_DIR>/wso2carbon.pem \
+         -keystore ./client-truststore.p12 -storepass wso2carbon -noprompt
+      ```
+    - Also import each component's own `wso2carbon.pem` into its own truststore using its own alias from the mapping above.
+      ```bash
+      keytool -import -trustcacerts -alias <ALIAS> -file ./wso2carbon.pem \
+         -keystore ./client-truststore.p12 -storepass wso2carbon -noprompt
       ```
       - Before each import, if the alias already exists in that truststore, delete it.
       ```bash
